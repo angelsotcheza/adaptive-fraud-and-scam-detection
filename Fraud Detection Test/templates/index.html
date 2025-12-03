@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adaptive Fraud and Scam Detector</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-image: url('/mnt/data/Interfaz de Detección de Fraude.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        backdrop-filter: blur(4px);
+        transition: background 0.3s, color 0.3s;
+        color: #000;
+    }
+    body.dark {
+        background-color: #0b1221;
+        background-image: none;
+        color: #fff;
+    }
+    .navbar {
+        width: 100%;
+        background: #0f1e34;
+        padding: 18px 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-sizing: border-box;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.22);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+    .nav-left { display: flex; align-items: center; gap: 28px; }
+    .nav-logo { width: 40px; height: 40px; background: white; border-radius: 10px; }
+    .nav-links a {
+        color: #dbe2f0;
+        margin-right: 28px;
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: 500;
+        transition: 0.2s;
+        cursor: pointer;
+    }
+    .nav-links a:hover, .nav-links a.active { color: white; font-weight: 700; }
+    .scan-btn {
+        background: #2e7efb;
+        color: white;
+        padding: 10px 22px;
+        font-size: 15px;
+        font-weight: 600;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .scan-btn:hover { background: #1f55b8; }
+    .theme-toggle {
+        font-size: 22px;
+        color: #fff;
+        cursor: pointer;
+        margin-right: 15px;
+    }
+    .container {
+        width: 95%;
+        max-width: 1400px;
+        margin: 60px auto;
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 20px;
+        padding: 40px 35px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.18);
+        display: none;
+        box-sizing: border-box;
+        transition: background 0.3s, color 0.3s;
+    }
+    body.dark .container {
+        background: rgba(15, 18, 35, 0.95);
+        color: #fff;
+    }
+    #home.container { display: block; overflow: visible; height: auto; min-height: auto; max-height: none; }
+    #home h1 { font-size: 28px; margin-bottom: 6px; }
+    #home h2 { font-size: 22px; margin-bottom: 6px; margin-top: 20px; }
+    #home p { font-size: 14px; margin-top: -2px; margin-bottom: 12px; }
+    .tab-btn {
+        padding: 12px 25px;
+        border-radius: 8px;
+        background: #e5e7eb;
+        border: none;
+        cursor: pointer;
+        font-size: 15px;
+        margin-right: 10px;
+        transition: 0.2s;
+    }
+    .tab-btn.active {
+        background: #2563eb;
+        color: white;
+        box-shadow: 0 4px 10px rgba(37,99,235,0.35);
+    }
+    textarea {
+        width: 100%;
+        height: 160px;
+        padding: 12px;
+        border-radius: 10px;
+        font-size: 15px;
+        margin-top: 15px;
+    }
+    .file-input { margin-top: 15px; margin-bottom: 15px; }
+    .analyze-btn {
+        width: 100%;
+        background: #2563eb;
+        color: white;
+        border: none;
+        padding: 15px;
+        font-size: 17px;
+        border-radius: 10px;
+        font-weight: 600;
+        margin-top: 10px;
+        opacity: 0.6;
+        cursor: not-allowed;
+        transition: 0.2s;
+    }
+    .analyze-btn.enabled {
+        opacity: 1;
+        cursor: pointer;
+    }
+    .result-box {
+        background: #ffffff;
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 25px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+    }
+    body.dark .result-box {
+        background: rgba(30,30,50,0.9);
+        color: #fff;
+    }
+    .result-header { padding: 18px; border-radius: 12px; color: white; font-size: 22px; font-weight: 700; text-align: center; }
+    .low-risk { background: #16a34a; }
+    .medium-risk { background: #f59e0b; }
+    .high-risk { background: #dc2626; }
+    .section-title { margin-top: 18px; font-weight: 700; font-size: 18px; }
+</style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="nav-left">
+        <div class="nav-logo"></div>
+        <div class="nav-links">
+            <a onclick="showSection('home')" id="nav-home">Home</a>
+            <a onclick="showSection('how-it-works')" id="nav-how">How it Works</a>
+            <a onclick="showSection('about')" id="nav-about">About</a>
+            <a onclick="showSection('contact')" id="nav-contact">Contact</a>
+        </div>
+    </div>
+    <div>
+        <i class="fa-regular fa-moon theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode"></i>
+        <button class="scan-btn" onclick="showSection('analysis')">Scan Now</button>
+    </div>
+</div>
+
+<!-- ======= HOME ======= -->
+<div id="home" class="container">
+    <h1>Adaptive Fraud and Scam Detection</h1>
+
+    <p><b>System Overview:</b> This system, Adaptive Fraud and Scam Detection Using Gemini LLM with OCR and Verified Sender Analysis, is designed to help users detect fraudulent messages, suspicious URLs, and scam-related content.</p>
+
+    <p>The system adapts to different forms of scams—emails, SMS, social media messages, screenshots, PDFs, and website links—making it useful for everyday users, students, and professionals.</p>
+
+    <h2>How the System Works</h2>
+    <p>Three major components:</p>
+    <ul>
+        <li><b>Gemini LLM Text Analysis</b> – Detects phishing keywords, threatening language, fake promotions, impersonation, and unusual requests.</li>
+        <li><b>OCR (Optical Character Recognition)</b> – Extracts text from images such as screenshots, photos, or scanned documents.</li>
+        <li><b>Verified Sender Analysis</b> – Evaluates if the sender, URL, or content is associated with known scam markers.</li>
+    </ul>
+
+    <p>Risk classification:</p>
+    <ul>
+        <li><b>Low Risk</b> – Safe content.</li>
+        <li><b>Medium Risk</b> – Suspicious traits; caution recommended.</li>
+        <li><b>High Risk</b> – Strong evidence of scam.</li>
+    </ul>
+
+    <h2>How to Use the System</h2>
+    <ol>
+        <li>Choose to analyze Text/File or a URL.</li>
+        <li>Paste message, upload a file, or enter a website link.</li>
+        <li>Click “Analyze” once input is provided.</li>
+        <li>View classification, risk percentage, explanation, and recommendations.</li>
+    </ol>
+
+    <h2>Sample Output</h2>
+    <div class="result-box">
+        <div class="result-header medium-risk">MEDIUM RISK — 48%</div>
+        <div class="section-title">Analysis Result</div>
+        <p><b>Classification:</b> Medium Risk</p>
+        <p><b>Risk Level:</b> 48%</p>
+        <p><b>Explanation:</b> The message contains signs of potential phishing — the sender is unfamiliar and the message pressures the user to click a link.</p>
+        <div class="section-title">Recommendations</div>
+        <ul>
+            <li>Do not click suspicious links.</li>
+            <li>Verify sender identity using trusted sources.</li>
+            <li>Enable two-factor authentication for accounts.</li>
+        </ul>
+    </div>
+</div>
+
+<!-- ======= HOW IT WORKS ======= -->
+<div id="how-it-works" class="container">
+    <h2>How It Works</h2>
+    <p>The Adaptive Fraud and Scam Detector combines advanced AI, OCR technology, and verified sender analysis to identify scams across multiple platforms. Here's a step-by-step overview:</p>
+    <ul>
+        <li><b>Step 1: Input Submission</b> – Users can submit suspicious text, upload a file (PDF, image, or text), or paste a URL for analysis.</li>
+        <li><b>Step 2: Text & File Analysis</b> – The system uses the Gemini LLM to detect phishing, scam language, and impersonation patterns in text. OCR extracts text from images and scanned documents.</li>
+        <li><b>Step 3: URL & Sender Verification</b> – URLs and sender information are cross-checked against known malicious sources and scam markers.</li>
+        <li><b>Step 4: Risk Assessment</b> – The system calculates a risk score and classifies content into Low, Medium, or High Risk categories.</li>
+        <li><b>Step 5: Recommendations</b> – Users receive detailed guidance on how to handle suspicious messages, links, or files safely.</li>
+    </ul>
+    <p>This multi-layered approach ensures a comprehensive and adaptive defense against evolving scam techniques.</p>
+</div>
+
+<!-- ======= ABOUT ======= -->
+<div id="about" class="container">
+    <h2>About</h2>
+    <p>The Adaptive Fraud and Scam Detector is designed to protect individuals and organizations from digital threats. Using AI-driven text analysis, optical character recognition (OCR), and verified sender checks, it identifies potential scams in messages, documents, and URLs.</p>
+    <p>Our mission is to make online interactions safer by providing clear, actionable insights and empowering users to detect fraud before it causes harm. The system is continuously updated to adapt to new scam strategies and emerging threats.</p>
+    <p>Ideal for students, professionals, and everyday users, the tool helps maintain digital security and peace of mind.</p>
+</div>
+
+<!-- ======= CONTACT ======= -->
+<div id="contact" class="container">
+    <h2>Contact</h2>
+    <ul>
+        <li><b>Email:</b> <a href="mailto:support@fraudscandetection.com">support@fraudscandetection.com</a></li>
+        <li><b>Phone:</b> +63 912 345 6789</li>
+        <li><b>Support Portal:</b> <a href="https://www.fraudscandetection.com/support" target="_blank">Visit support portal</a></li>
+    </ul>
+</div>
+
+<!-- ======= ANALYSIS ======= -->
+<div id="analysis" class="container">
+    <div>
+        <button id="textTab" class="tab-btn active">Text / File Check</button>
+        <button id="urlTab" class="tab-btn">URL Check</button>
+    </div>
+
+    <div id="textSection">
+        <textarea id="text_input" placeholder="Paste any email, message, or suspicious text here..."></textarea>
+        <input type="file" id="file_input" class="file-input" accept=".txt,.pdf,.jpg,.jpeg,.png">
+        <button class="analyze-btn" onclick="analyzeTextOrFile()">Analyze Content</button>
+    </div>
+
+    <div id="urlSection" style="display:none;">
+        <textarea id="url_input" placeholder="Paste a URL to check..."></textarea>
+        <button class="analyze-btn" onclick="analyzeURL()">Analyze URL</button>
+    </div>
+
+    <div id="result" class="result-box" style="display:none;"></div>
+</div>
+
+<script>
+const themeToggle = document.getElementById("themeToggle");
+themeToggle.addEventListener("click", () => document.body.classList.toggle("dark"));
+
+function showSection(id) {
+    const sections = ['home','how-it-works','about','contact','analysis'];
+    sections.forEach(sec => document.getElementById(sec).style.display = (sec===id)?'block':'none');
+    ['nav-home','nav-how','nav-about','nav-contact'].forEach(navId => document.getElementById(navId).classList.remove('active'));
+    if(id==='home') document.getElementById('nav-home').classList.add('active');
+    if(id==='how-it-works') document.getElementById('nav-how').classList.add('active');
+    if(id==='about') document.getElementById('nav-about').classList.add('active');
+    if(id==='contact') document.getElementById('nav-contact').classList.add('active');
+    if(id!=='analysis') { document.getElementById('result').style.display='none'; }
+}
+showSection('home');
+
+function setTab(isURL) {
+    document.getElementById("textTab").classList.toggle("active",!isURL);
+    document.getElementById("urlTab").classList.toggle("active",isURL);
+    document.getElementById("textSection").style.display = isURL?"none":"block";
+    document.getElementById("urlSection").style.display = isURL?"block":"none";
+    document.getElementById("result").style.display = "none";
+    updateAnalyzeButtonState();
+}
+document.getElementById("textTab").onclick = () => setTab(false);
+document.getElementById("urlTab").onclick = () => setTab(true);
+
+function updateAnalyzeButtonState() {
+    const textInput = document.getElementById("text_input").value.trim();
+    const fileInput = document.getElementById("file_input").files.length;
+    const urlInput = document.getElementById("url_input").value.trim();
+    const textSection = window.getComputedStyle(document.getElementById("textSection")).display !== "none";
+    const analyzeBtns = document.querySelectorAll(".analyze-btn");
+
+    analyzeBtns.forEach(btn => {
+        if ((textSection && (textInput || fileInput > 0)) || (!textSection && urlInput)) {
+            btn.disabled = false;
+            btn.classList.add("enabled");
+        } else {
+            btn.disabled = true;
+            btn.classList.remove("enabled");
+        }
+    });
+}
+
+document.getElementById("text_input").addEventListener("input", updateAnalyzeButtonState);
+document.getElementById("file_input").addEventListener("change", updateAnalyzeButtonState);
+document.getElementById("url_input").addEventListener("input", updateAnalyzeButtonState);
+
+function showResult(data, userInput) {
+    const box = document.getElementById("result");
+    let cssClass = "low-risk";
+    const c = (data.classification || "").toLowerCase();
+    if(c==="medium risk") cssClass="medium-risk";
+    else if(c==="high risk") cssClass="high-risk";
+
+    box.style.display = "block";
+    box.innerHTML = `
+        <div class="result-header ${cssClass}">
+            ${(data.classification||"Unknown").toUpperCase()} — ${data.risk??0}%
+        </div>
+        <div class="section-title">Input Provided</div>
+        <pre style="white-space: pre-wrap; word-wrap: break-word;">${userInput}</pre>
+        <div class="section-title">Analysis Result</div>
+        <p><b>Classification:</b> ${data.classification||"Unknown"}</p>
+        <p><b>Risk Level:</b> ${data.risk??0}%</p>
+        <p><b>Explanation:</b> ${data.explanation||""}</p>
+        <div class="section-title">Recommendations</div>
+        <ul>${(data.recommendations||[]).map(r=>`<li>${r}</li>`).join("")}</ul>
+    `;
+    box.scrollIntoView({behavior:"smooth"});
+}
+
+
+
+async function analyzeTextOrFile() {
+    const textInput = document.getElementById("text_input").value.trim();
+    const fileInput = document.getElementById("file_input").files[0];
+
+    if(!textInput && !fileInput){ alert("Please enter text or upload a file."); return; }
+
+    const resultBox = document.getElementById("result");
+    resultBox.style.display = "block";
+    resultBox.innerHTML = "Analyzing... Please wait.";
+
+    let formData = new FormData();
+    if(fileInput) formData.append("file", fileInput);
+    if(textInput) formData.append("text_input", textInput);
+
+    try {
+        const res = await fetch("/analyze_text",{method:"POST",body:formData});
+        const data = await res.json();
+
+        // Combine text + extracted file content to display as input
+        let userInput = textInput;
+        if(fileInput) userInput += `\n---File: ${fileInput.name}---`;
+
+        showResult(data, userInput);
+
+        document.getElementById("text_input").value = "";
+        document.getElementById("file_input").value = "";
+        updateAnalyzeButtonState();
+    } catch {
+        resultBox.innerHTML = "Error analyzing the content.";
+    }
+}
+
+
+async function analyzeURL() {
+    const urlInput = document.getElementById("url_input").value.trim();
+    if(!urlInput){ alert("Please enter a URL."); return; }
+
+    const resultBox=document.getElementById("result");
+    resultBox.style.display="block";
+    resultBox.innerHTML="Analyzing URL... Please wait.";
+
+    let formData = new FormData();
+    formData.append("url_input",urlInput);
+
+    try {
+        const res = await fetch("/analyze_url",{method:"POST",body:formData});
+        const data = await res.json();
+
+        // Display URL input
+        showResult(data, urlInput);
+
+        document.getElementById("url_input").value="";
+        updateAnalyzeButtonState();
+    } catch {
+        resultBox.innerHTML="Error analyzing the URL.";
+    }
+}
+
+</script>
+
+</body>
+</html>
